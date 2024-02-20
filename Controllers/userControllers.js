@@ -12,7 +12,7 @@ exports.userpost = async (req, res) => {
     try {
         const preuser = await users.findOne({ email: email });
         if (preuser) {
-            res.status(400).json({ error: "This user already exist in our databse" });
+            res.status(400).json({ error: "This user already exist in our database" });
         } else {
             const dateCreate = moment(new Date()).format("YYYY-MM-DD hh:mm:ss");
 
