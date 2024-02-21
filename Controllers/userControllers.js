@@ -41,9 +41,30 @@ exports.userpost = async (req, res) => {
 
 //get user list
 exports.getUsers = async (req, res) => {
+    console.log('getReq', req?.query?.search)
+    const search = req?.query?.search;
+    const status = req?.query?.status;  //All,Active,In-Active
+    const gender = req.query.gender;
+    const sort = req.query.sort;  //new
 
+    // const query={
+    //     $or: [
+    //         { firstname: { $regex: search, $options: 'i' } },
+    //         { email: { $regex: search, $options: 'i' } },
+    //         { mobile: { $regex: search, $options: 'i' } },
+    //         { gender: { $regex: search, $options: 'i' } },
+    //         { status: { $regex: search, $options: 'i' } }
+    //     ]
+    // }
+    const query = {
+        ... (!!search && { firstname: { $regex: search, $options: "i" } }),
+        ...(!!status && status !== 'All' && { status: status }),
+        ...(!!gender && { gender: gender }),
+        ...(!!sort && { sort: sort })
+    }
+    console.log('query', query)
     try {
-        const usersData = await users.find();
+        const usersData = await users.find(query).sort({ datecreated: 1 });
         res.status(200).json(usersData);
     } catch (error) {
         res.status(400).json(error);
