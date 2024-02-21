@@ -15,10 +15,10 @@ app.use(express.json());
 app.use(router);
 
 //get response check for testing ,server is running or not 
-app.get('/', (req, res) => {
-    res.status(200).json('server started@@@@')
-    // console.log('server is running at', PORT)
-})
+// app.get('/', (req, res) => {
+//     res.status(200).json('server started@@@@')
+//     // console.log('server is running at', PORT)
+// })
 
 
 //server start
