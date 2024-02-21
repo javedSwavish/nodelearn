@@ -41,31 +41,43 @@ exports.userpost = async (req, res) => {
 
 //get user list
 exports.getUsers = async (req, res) => {
-    console.log('getReq', req?.query?.search)
+
     const search = req?.query?.search;
     const status = req?.query?.status;  //All,Active,In-Active
     const gender = req.query.gender;
-    const sort = req.query.sort;  //new
+    const sort = req.query.sort || '';  //new
+    const page = req.query.page || 1;
+    const per_page = 5;
 
-    // const query={
-    //     $or: [
-    //         { firstname: { $regex: search, $options: 'i' } },
-    //         { email: { $regex: search, $options: 'i' } },
-    //         { mobile: { $regex: search, $options: 'i' } },
-    //         { gender: { $regex: search, $options: 'i' } },
-    //         { status: { $regex: search, $options: 'i' } }
-    //     ]
-    // }
     const query = {
         ... (!!search && { firstname: { $regex: search, $options: "i" } }),
         ...(!!status && status !== 'All' && { status: status }),
         ...(!!gender && { gender: gender }),
-        ...(!!sort && { sort: sort })
+        // ...(!!sort && { sort: sort })
     }
-    console.log('query', query)
+    console.log('sort', sort)
     try {
-        const usersData = await users.find(query).sort({ datecreated: 1 });
-        res.status(200).json(usersData);
+        const skip = (page - 1) * per_page;
+        const count = await users.countDocuments(query);
+        const pageCount = Math.ceil(count / per_page);
+        const isNextPage = page != pageCount;
+        const isPrevPage = page != 1;
+        console.log('count', count, 'pageCount', pageCount, 'isNextPage', isNextPage, 'isPrevPage', isPrevPage, 'page', page)
+        const usersData =
+            await users
+                .find(query)
+                .sort({ updatedAt: sort === 'new' ? -1 : 1, firstname: 1 })
+                .limit(page === 'all' ? null : per_page)
+                .skip(page === 'all' ? null : skip)
+
+        res.status(200).json({
+            ...(page !== 'all' && {
+                pagination: {
+                    isNextPage, isPrevPage, currentPage: page, totalPage: pageCount, per_page, totalItem: count
+                }
+            }),
+            usersData
+        });
     } catch (error) {
         res.status(400).json(error);
         console.log("catch block error")
@@ -90,7 +102,11 @@ exports.deleteuser = async (req, res) => {
     const { id } = req.params;
     try {
         const deleteUserData = await users.findByIdAndDelete(id);
-        res.status(200).json(deleteUserData);
+        // deleteUserData.message = 'Deleted successfully'
+
+        let message = { ...deleteUserData?._doc, message: 'Deleted successfully' }
+        console.log('message', message);
+        res.status(200).json(message);
     } catch (error) {
         res.status(400).json(error);
         console.log("catch block error")
