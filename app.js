@@ -13,11 +13,13 @@ const PORT = 5001;
 app.use(cors());
 app.use(express.json());
 app.use(router);
-//get response
+
+//get response check for testing ,server is running or not 
 app.get('/', (req, res) => {
-    res.status(200).json('server started')
+    res.status(200).json('server started@@@@')
     // console.log('server is running at', PORT)
 })
+
 
 //server start
 app.listen(PORT, () => {
