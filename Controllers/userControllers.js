@@ -58,7 +58,7 @@ exports.getUsers = async (req, res) => {
     console.log('sort', sort)
     try {
         const skip = (page - 1) * per_page;
-        const count = await users.countDocuments(query);
+        const count = await users.countDocuments(query); //count total items 
         const pageCount = Math.ceil(count / per_page);
         const isNextPage = page != pageCount;
         const isPrevPage = page != 1;
