@@ -44,8 +44,51 @@ db.users.distinct('age') //-->yh hme array of string de dega
 db.users.distinct('age',{status:'active'})
 db.users.count({})
 
-//lec.13 
+//lec.13 to 21 aggregate
+//lec.13 $match
+db.users.aggregate([
+  {$match:{status:'active'}}
+])
 
+//lec. 14 $group
+que=> [{name:'sonu',dep:'tech',marks:20},{name:'javed',dep:'tech',marks:10},{name:'mikku',dep:'it',marks:30},{name:'heru',dep:'hr',marks:40}]
+ans=>[{_id:'tech',totalMarks:30},{_id:'tech',totalMarks:30},{_id:'tech',totalMarks:40}]
+// code
+db.users.aggregate([
+  {$group:{_id:'$dep',totalMarks:{sum:'$marks'}}}
+])
 
+//lec. 15 $sort || $skip
+db.users.aggregate([
+  {$group:{_id:'$dep'}},
+  {$sort:{_id:-1}},
+  {$skip:2}}
+])
 
+//lec. 16 $project || $type
+db.users.aggregate([
+  {$group:{_id:'$dep'}},
+  {$project:{name:1,marks:1,_id:0}}
+])
+//
+db.users.aggregate([
+  {$group:{_id:'$dep'}},
+  {$project:{name:{$type:'$name'},marks:1,_id:0}}
+])
 
+//lec. 17,18 $count || $limit
+db.users.aggregate([
+  {$match:{status:'active'}},
+  {$count:'totall'},  //{totall:5}
+  {$limit:2}
+])
+
+//lec. 19,20,21 $unwind || $out(new collection)
+que=>[{name:'jav',lang:['node','react']},{name:'heru',lang:['java','node']}]
+ans=>[{id:'node'},{id:'react'},{id:'java'}]
+//sol
+db.users.aggregate([
+  {$unwind:'$lang'},
+  {$group:{id:'$lang'}},
+  {$out:'collectionName'}
+])
